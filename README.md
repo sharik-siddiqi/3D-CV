@@ -53,7 +53,7 @@ To evaluate the model on FAUST, run:
 python .\evaluation\evaluation_faust.py
 ```
 
-After getting the files 'curve_geo_error_non_iso.mat' and 'dd2_non_iso.mat' from the above matlab script, run the matlab scripts:
+After getting the files *'curve_geo_error_non_iso.mat'* and *'dd2_non_iso.mat'* from the above matlab script, run the matlab scripts:
 ```eval
 .\evaluation\eval_graph.m
 .\evaluation\plot_perf.m
