@@ -42,6 +42,7 @@ except OSError:
 DATA_PATH = '/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/'
 
 # Load SHOT, HKS and WKS data for the training dataset shapes (Split into multiple files due to the large size) 
+
 # {PREPARE ACCORDINGLY FOR YOUR OWN DATA}
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
