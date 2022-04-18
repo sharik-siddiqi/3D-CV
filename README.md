@@ -11,16 +11,17 @@ pip install -r requirements.txt
 ```
 Installing PyTorch may require an ad hoc procedure, depending on your computer settings.
 
-### Data & Pretrained models
-You can download data and the pre-trained models using the scripts:
-```
-python .\data\download_data.py
-python .\models\pretrained\download_pretrained.py
-```
+### Data & Pre-Trained weights and biases
+Due to the enormous size of the data, anyone can contact with for the same via the mentioned contact email
 
+The trained model weights and the biases have been provided in the repository 
+```
+python .\models\pretrained_basis\weights_basis.pth
+python .\models\pretrained_desc\weights_desc.pth
+```
 ### Training
 
-To train the basis and descriptors models, run these commands:
+To train the basis and descriptors models with any specific dataset, change the paths provided for the datasets and run these commands:
 
 ```train
 python .\code\train_basis.py
@@ -40,24 +41,14 @@ And in matlab the script:
 ```
 ### Results
 
-These are the results of the two implementations:
+These are the results of the implementations:
 
-| Model name         | Ours            | Ours+Opt       |
+| Model name         | Ours            |   Supervised       |
 | ------------------ |---------------- | -------------- |
-| TF 1.5             |     6.0e-2      |      2.9e-2    |
-| PyTorch            |     5.7e-2      |      3.1e-2    |
+| PyTorch            |     6.0e-2      |      6.78 e-2    |
 
-The small discrepancies have several reasons:
-1) basis and descriptors networks are trained 400 epochs in PyTorch implementation; several thousand in TF 1.5
-2) while the two implementations are similar, there are some differences in the training process and hyperparameters due to libraries.
-3) the training requires pseudo-inverse computation; these can produce different results depending on the library
+The idea and the code has driven it's inspiration from the below mentioned paper
 
-### License
-[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-
-If you use this code, please cite our paper.
-
-```
 @article{marin2020correspondence,
   title={Correspondence learning via linearly-invariant embedding},
   author={Marin, Riccardo and Rakotosaona, Marie-Julie and Melzi, Simone and Ovsjanikov, Maks},
@@ -65,7 +56,3 @@ If you use this code, please cite our paper.
   volume={33},
   year={2020}
 }
-```
-
-This work is licensed under a [Creative Commons Attribution-NonCommercial 4.0 International License](http://creativecommons.org/licenses/by-nc/4.0/). 
-For any commercial uses or derivatives, please contact us.
