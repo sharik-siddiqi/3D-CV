@@ -64,8 +64,8 @@ After getting the files *'curve_geo_error_non_iso.mat'* and *'dd2_non_iso.mat'* 
 These are the results of the implementations in terms of mean error per vertex of our test dataset:
 
 | Model name         | Ours            |   Supervised       |
-| ------------------ |---------------- | -------------- |
-| PyTorch            |     6.0e-2      |      6.78e-2    |
+| ------------------ |---------------- | ------------------ |
+| PyTorch            |     6.0e-2      |      6.78e-2       |
 
 The idea and the code has driven it's inspiration from the below mentioned paper
 
