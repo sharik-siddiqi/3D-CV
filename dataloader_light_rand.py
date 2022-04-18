@@ -34,15 +34,15 @@ def farthest_point_sample(point, npoint, count, match, rand):
        N, D = point.shape
        xyz = point[:,:3]
        centroids = np.zeros((npoint + 400,))
-       #distance = np.ones((N,)) * 1e10
-       #farthest = np.random.randint(0, N)
-       #for i in range(npoint):
-       #    centroids[i] = farthest
-       #    centroid = xyz[farthest, :]
-       #    dist = np.sum((xyz - centroid) ** 2, -1)
-       #    mask = dist < distance
-       #    distance[mask] = dist[mask]
-       #    farthest = np.argmax(distance, -1) 
+       distance = np.ones((N,)) * 1e10
+       farthest = np.random.randint(0, N)
+       for i in range(npoint):
+           centroids[i] = farthest
+           centroid = xyz[farthest, :]
+           dist = np.sum((xyz - centroid) ** 2, -1)
+           mask = dist < distance
+           distance[mask] = dist[mask]
+           farthest = np.argmax(distance, -1) 
        centroids[:npoint] = match
        x = [i for i in range(xyz.shape[0]) if i not in centroids]
        centroids[npoint:npoint+400] = random.sample(x, k=400)
@@ -54,15 +54,15 @@ def farthest_point_sample(point, npoint, count, match, rand):
        N, D = point.shape
        xyz = point[:,:3]
        centroids = np.zeros((npoint,))
-       #distance = np.ones((N,)) * 1e10
-       #farthest = np.random.randint(0, N)
-       #for i in range(npoint):
-       #    centroids[i] = farthest
-       #    centroid = xyz[farthest, :]
-       #    dist = np.sum((xyz - centroid) ** 2, -1)
-       #    mask = dist < distance
-       #    distance[mask] = dist[mask]
-       #    farthest = np.argmax(distance, -1)
+       distance = np.ones((N,)) * 1e10
+       farthest = np.random.randint(0, N)
+       for i in range(npoint):
+           centroids[i] = farthest
+           centroid = xyz[farthest, :]
+           dist = np.sum((xyz - centroid) ** 2, -1)
+           mask = dist < distance
+           distance[mask] = dist[mask]
+           farthest = np.argmax(distance, -1)
        centroids[:npoint] = match
        #centroids[:npoint] = np.arange(2100)
        point = point[centroids.astype(np.int32),:]
@@ -80,14 +80,16 @@ class Surr12kModelNetDataLoader(Dataset):
 
         _, self.f = igl.read_triangle_mesh("/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/3973_simp_1000.obj")
         
+        # Matching co-ordinates from low density to high density meshes (for dealing with low density meshes (2100 -> 1000))
         match_fixed =  loadmat("/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/match_2100_1000 (1).mat", variable_names = ['match'])
         match_fixed = match_fixed['match'][:,0] - 1
         self.match = match_fixed.reshape(-1,)
          
+        # Matching co-ordinates from low density to high density meshes (for dealing with low density meshes (6890 -> 2100))
         match = loadmat("/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/match_6890_2100 (1).mat", variable_names = ['match'])
         match = match['match'][:,0] - 1;
 
-        print("enter 1")
+        # Divided datasets containing the heat kernel data at t=0.005 sec and 2100 vertices/mesh
         indices_0 = loadmat('./data/unsup_data_t_0.005_hk_0_same.mat', variable_names = ['indices'])
         indices_1 = loadmat('./data/unsup_data_t_0.005_hk_1_same.mat', variable_names = ['indices'])
         indices_2 = loadmat('./data/unsup_data_t_0.005_hk_2_same.mat' ,variable_names = ['indices'] )
@@ -99,10 +101,11 @@ class Surr12kModelNetDataLoader(Dataset):
         indices_8 = loadmat('./data/unsup_data_bent_t_0.005_hk_0_same.mat' ,variable_names = ['indices'])
         indices_9 = loadmat('./data/unsup_data_bent_t_0.005_hk_1_same.mat' ,variable_names = ['indices'])
 
-        print("enter 2")
+        # Overall dataset containg 4000 shapes
         data_1 = loadmat(os.path.join(root, 'vert_surreal_same.mat'), variable_names = ['vert'])
         data_2 = loadmat(os.path.join(root, 'vert_bent_same.mat'), variable_names = ['vert'])
 
+        # Splitting into training and test dataset
         if (split == 'train'):
             data_0_train = data_1['vert'][indices_0['indices'][0,:-2].reshape(-1,), :, :]
             data_1_train = data_1['vert'][indices_1['indices'][0,:-2].reshape(-1,), :, :]
@@ -142,15 +145,19 @@ class Surr12kModelNetDataLoader(Dataset):
 
     def _get_item(self, index):
         point_set = self.data[index,:,:]
+      
         if(self.split=='train'): 
           value = math.floor((index)/98)
           query = index%98
+          
           if (value<8):
            g_dis = loadmat('/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/unsup_data_t_0.005_hk_{}_same.mat'.format(value), variable_names = ['part_{}_{}'.format(value, query)])
            geo_set = g_dis['part_{}_{}'.format(value, query)]
+          
           else:
            g_dis = loadmat('/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/unsup_data_bent_t_0.005_hk_{}_same.mat'.format(value-8), variable_names = ['part_bent_{}'.format(query)])
            geo_set = g_dis['part_bent_{}'.format(query)]
+          
           if self.uniform:
             point_set, self.indices, self.count = farthest_point_sample(point_set, self.npoints, self.count, self.match, self.rand)
             geo_set = geo_set[self.indices, :]
@@ -159,6 +166,7 @@ class Surr12kModelNetDataLoader(Dataset):
             area = area/area.sum()
             #print(self.indices[:20])
             self.uniform = False
+        
           else:
             point_set = point_set[self.indices,:]
             geo_set = geo_set[self.indices, :]
@@ -173,12 +181,15 @@ class Surr12kModelNetDataLoader(Dataset):
         else:
           value = math.floor((index)/2)
           query = 98 + (index%2)
+          
           if (value<8):
            g_dis = loadmat('/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/unsup_data_t_0.005_hk_{}_same.mat'.format(value), variable_names = ['part_{}_{}'.format(value, query)])
            geo_set = g_dis['part_{}_{}'.format(value, query)]
+          
           else:
            g_dis = loadmat('/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/unsup_data_bent_t_0.005_hk_{}_same.mat'.format(value-8), variable_names = ['part_bent_{}'.format(query)])
            geo_set = g_dis['part_bent_{}'.format(query)]
+          
           if self.uniform:
             point_set, self.indices, self.count = farthest_point_sample(point_set, self.npoints, self.count, self.match, self.rand)
             geo_set = geo_set[self.indices, :]
@@ -186,6 +197,7 @@ class Surr12kModelNetDataLoader(Dataset):
             area = igl.massmatrix(point_set, self.f, igl.MASSMATRIX_TYPE_VORONOI).toarray()
             area = area/area.sum()
             self.uniform = False
+          
           else:
             point_set = point_set[self.indices]
             geo_set = geo_set[self.indices, :]
