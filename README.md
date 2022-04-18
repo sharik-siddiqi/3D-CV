@@ -58,7 +58,7 @@ After getting the files 'curve_geo_error_non_iso.mat' and 'dd2_non_iso.mat' from
 
 ### Results
 
-These are the results of the implementations:
+These are the results of the implementations in terms of mean error per vertex of our test dataset:
 
 | Model name         | Ours            |   Supervised       |
 | ------------------ |---------------- | -------------- |
