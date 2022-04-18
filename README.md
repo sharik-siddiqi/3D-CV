@@ -14,10 +14,10 @@ Installing PyTorch may require an ad hoc procedure, depending on your computer s
 ### Data & Pre-Trained weights and biases
 Due to the enormous size of the data, anyone can contact with for the same via the mentioned contact email
 
-The trained model weights and the biases have been provided in the repository 
+The trained model weights and the biases for the basis and decriptor model have been provided in the repository 
 ```
-python .\models\pretrained_basis\weights_basis.pth
-python .\models\pretrained_desc\weights_desc.pth
+python .\model\pretraned_weights\basis_model_best_mod_select_epoch_63.pth
+python .\models\pretrained_weights\desc_model_best_C_0.01_epoch_62.pth
 ```
 ### Training
 
@@ -33,11 +33,13 @@ python .\code\train_desc.py
 To evaluate the model on FAUST, run:
 
 ```eval
-python .\evaluation\test_faust.py
+python .\evaluation\evaluation_faust.py
 ```
 And in matlab the script:
 ```eval
-.\evaluation\evaluation.m
+
+.\evaluation\eval_graph.m
+.\evaluation\plot_perf.m
 ```
 ### Results
 
@@ -45,7 +47,7 @@ These are the results of the implementations:
 
 | Model name         | Ours            |   Supervised       |
 | ------------------ |---------------- | -------------- |
-| PyTorch            |     6.0e-2      |      6.78 e-2    |
+| PyTorch            |     6.0e-2      |      6.78e-2    |
 
 The idea and the code has driven it's inspiration from the below mentioned paper
 
