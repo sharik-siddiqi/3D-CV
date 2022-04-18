@@ -30,10 +30,10 @@ python .\code\train_desc.py
 
 ### Evaluation
 
-To evaluate the model on FAUST w\noise, run:
+To evaluate the model on FAUST, run:
 
 ```eval
-python .\code\test_faust.py
+python .\evaluation\test_faust.py
 ```
 And in matlab the script:
 ```eval
