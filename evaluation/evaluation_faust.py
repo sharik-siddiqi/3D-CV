@@ -131,12 +131,7 @@ for idx_1,i in enumerate(epoch_basis):
       mean_error_list.append([i, j, mean_error])
 
       #if(mean_error<mean_error_start):
-      savemat('./curve_geo_error_non_iso.mat', {'match': match_desc_1, 'mean_curves' : mean_curves, 'thr' : thr, 'geo_err': geo_err_main, 'source':src, 'target':tar, 'vertices': v_clean, 'faces': f})
-      #savemat('./curve_geo_error_basis.mat', {'vertices': v_clean, 'faces': f})     
+      savemat('./curve_geo_error_non_iso.mat', {'match': match_desc_1, 'mean_curves' : mean_curves, 'thr' : thr, 'geo_err': geo_err_main, 'source':src, 'target':tar, 'vertices': v_clean, 'faces': f})  
       savemat('./dd2_non_iso.mat', {'desc':dd_2})
-      #savemat('./match_phiM.mat', {'phiM': match_phiM})
-      #savemat('./match_phiN.mat', {'phiN': match_phiN})
-
-      #   mean_error_start = mean_error
 
       print(mean_error_list)
