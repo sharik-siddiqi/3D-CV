@@ -28,6 +28,9 @@ In various locations, you can modify the code accordding to the dataset generate
 - Replace "/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/match_6890_2100 (1).mat" (6890 -> 2100) & "/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/match_2100_1000 (1).mat" (2100->1000) by files containing correspondences between high density and low density meshes in order to work with the latter
 - Replace "/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/3973_simp_1000.obj" by the location of the simplified mesh
 
+### Model Architecture
+THe 'model.py' file contains the model architecture for both basis and descriptor models
+
 ### Pre-Trained weights and biases
 The trained model weights and the biases for the basis and decriptor model have been provided in the repository 
 ```
