@@ -1,19 +1,15 @@
 from __future__ import print_function 
 import sys 
-sys.path.append("./Pointnet_Pointnet2_pytorch/models")
-
 import argparse
 import os
 import random
 import torch
 import torch.optim as optim
 from model import PointNetBasis
-#from pointnet_sem_seg import get_model
-#from pointnet_utils import feature_transform_reguliarzer
 import torch.nn.functional as F
 from tqdm import tqdm
 import numpy as np
-from dataload_light_rand import Surr12kModelNetDataLoader as DataLoader
+from dataload import Surr12kModelNetDataLoader as DataLoader
 from tqdm import tqdm
 from random import sample
 from PIL import Image
@@ -23,11 +19,11 @@ import igl
 import torch.nn
 
 device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
-print(device)
 manualSeed = 1  # fix seed
 random.seed(manualSeed)
 torch.manual_seed(manualSeed)
 
+# Obtain the faces of one of the shapes in the dataset
 _, f = igl.read_triangle_mesh("/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/3973_simp_2100.obj")
 
 b_size = 10;
@@ -47,7 +43,7 @@ DATA_PATH = '/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/'
 
 #num_test = 10
 
-print("phase a")
+# Load SHOT, HKS and WKS data for the training dataset shapes (Split into multiple files due to the lasrge size)
 shot_0 = loadmat('./pyshot/shot_faust_0_2100_sam.mat')
 shot_1 = loadmat('./pyshot/shot_faust_1_2100_sam.mat')
 shot_2 = loadmat('./pyshot/shot_faust_2_2100_sam.mat')
@@ -59,7 +55,6 @@ shot_7 = loadmat('./pyshot/shot_faust_7_2100_sam.mat')
 shot_8 = loadmat('./pyshot/shot_faust_8_2100_sam.mat')
 shot_9 = loadmat('./pyshot/shot_faust_9_2100_sam.mat')
 
-print("phase b")
 #hks_0 = loadmat('./pyshot/hks_surreal_0_2100_sam.mat')
 #hks_1 = loadmat('./pyshot/hks_surreal_1_2100_sam.mat')
 #hks_2 = loadmat('./pyshot/hks_surreal_2_2100_sam.mat')
@@ -71,7 +66,6 @@ print("phase b")
 #hks_8 = loadmat('./pyshot/hks_surreal_8_2100_sam.mat')
 #hks_9 = loadmat('./pyshot/hks_surreal_9_2100_sam.mat')
 
-print("phase c")
 wks_0 = loadmat('./pyshot/wks_surreal_0_2100_sam.mat')
 wks_1 = loadmat('./pyshot/wks_surreal_1_2100_sam.mat')
 wks_2 = loadmat('./pyshot/wks_surreal_2_2100_sam.mat')
@@ -83,6 +77,7 @@ wks_7 = loadmat('./pyshot/wks_surreal_7_2100_sam.mat')
 wks_8 = loadmat('./pyshot/wks_surreal_8_2100_sam.mat')
 wks_9 = loadmat('./pyshot/wks_surreal_9_2100_sam.mat')
 
+# Concatenate all the subsets of the overall dataset
 shot_train = np.concatenate((shot_0['shot'][:-2,:,:], shot_1['shot'][:-2,:,:], shot_2['shot'][:-2,:,:], shot_3['shot'][:-2,:,:], shot_4['shot'][:-2,:,:], shot_5['shot'][:-2,:,:], shot_6['shot'][:-2,:,:], shot_7['shot'][:-2,:,:], shot_8['shot'][:-2,:,:], shot_9['shot'][:-2,:,:]), axis=0)
 #shot_test = np.concatenate((shot_1['shot'][-num_test:,:,:], shot_2['shot'][-num_test:,:,:], shot_3['shot'][-num_test:,:,:], shot_4['shot'][-num_test:,:,:], shot_5['shot'][-num_test:,:,:], shot_6['shot'][-num_test:,:,:]), axis=0)
 #hks_train = np.concatenate((hks_0['hks'][:-2,:,:], hks_1['hks'][:-2,:,:], hks_2['hks'][:-2,:,:], hks_3['hks'][:-2,:,:], hks_4['hks'][:-2,:,:], hks_5['hks'][:-2,:,:], hks_6['hks'][:-2,:,:], hks_7['hks'][:-2,:,:], hks_8['hks'][:-2,:,:], hks_9['hks'][:-2,:,:]), axis=0)
@@ -96,11 +91,8 @@ wks_test = np.concatenate((wks_0['wks'][-2:,:,:], wks_1['wks'][-2:,:,:], wks_2['
 desc_train = np.concatenate((shot_train,  wks_train), axis=2)
 desc_test =  np.concatenate((shot_test,  wks_test), axis=2)
 
-#desc_train = shot_train;
-#desc_test = shot_test;
-
+#Custom dataloader instance
 TRAIN_DATASET = DataLoader(root=DATA_PATH, npoint=1000, split='train', uniform=True, normal_channel=False, augm = True, rand = False)
-print("next one")
 TEST_DATASET = DataLoader(root=DATA_PATH, npoint=1000, split='test', uniform=True, normal_channel=False, augm = True, rand = False)
 
 dataset = torch.utils.data.DataLoader(TRAIN_DATASET, batch_size=b_size, shuffle=True, num_workers=0)
@@ -108,7 +100,6 @@ dataset_test = torch.utils.data.DataLoader(TEST_DATASET, batch_size=b_size, shuf
 
 # BasisNetwork with 20 basis
 basisNet = PointNetBasis(k=20, feature_transform=False)
-#basisNet = get_model(20)
 #checkpoint = torch.load(outf + '/basis_model_unsup_hk_0.01_epoch_60.pth')
 #basisNet.load_state_dict(checkpoint)
 
