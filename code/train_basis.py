@@ -41,57 +41,29 @@ except OSError:
 
 DATA_PATH = '/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/'
 
-#num_test = 10
+# Load SHOT, HKS and WKS data for the training dataset shapes (Split into multiple files due to the large size) 
+# {PREPARE ACCORDINGLY FOR YOUR OWN DATA}
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-# Load SHOT, HKS and WKS data for the training dataset shapes (Split into multiple files due to the lasrge size)
-shot_0 = loadmat('./pyshot/shot_faust_0_2100_sam.mat')
-shot_1 = loadmat('./pyshot/shot_faust_1_2100_sam.mat')
-shot_2 = loadmat('./pyshot/shot_faust_2_2100_sam.mat')
-shot_3 = loadmat('./pyshot/shot_faust_3_2100_sam.mat')
-shot_4 = loadmat('./pyshot/shot_faust_4_2100_sam.mat')
-shot_5 = loadmat('./pyshot/shot_faust_5_2100_sam.mat')
-shot_6 = loadmat('./pyshot/shot_faust_6_2100_sam.mat')
-shot_7 = loadmat('./pyshot/shot_faust_7_2100_sam.mat')
-shot_8 = loadmat('./pyshot/shot_faust_8_2100_sam.mat')
-shot_9 = loadmat('./pyshot/shot_faust_9_2100_sam.mat')
+# shot_0 = loadmat('./shot_faust_0_2100_sam.mat') # Load necessary SHOT descriptor data for the dataset (if large dataset, divide into subsets and concatenate)
+# hks_0 = loadmat('./hks_surreal_0_2100_sam.mat') # Load necessary HKS descriptor data for the dataset (if large dataset, divide into subsets and concatenate)
+# wks_0 = loadmat('./pyshot/wks_surreal_0_2100_sam.mat') # Load necessary WKS descriptor data for the dataset (if large dataset, divide into subsets and concatenate)
 
-#hks_0 = loadmat('./pyshot/hks_surreal_0_2100_sam.mat')
-#hks_1 = loadmat('./pyshot/hks_surreal_1_2100_sam.mat')
-#hks_2 = loadmat('./pyshot/hks_surreal_2_2100_sam.mat')
-#hks_3 = loadmat('./pyshot/hks_surreal_3_2100_sam.mat')
-#hks_4 = loadmat('./pyshot/hks_surreal_4_2100_sam.mat')
-#hks_5 = loadmat('./pyshot/hks_surreal_5_2100_sam.mat')
-#hks_6 = loadmat('./pyshot/hks_surreal_6_2100_sam.mat')
-#hks_7 = loadmat('./pyshot/hks_surreal_7_2100_sam.mat')
-#hks_8 = loadmat('./pyshot/hks_surreal_8_2100_sam.mat')
-#hks_9 = loadmat('./pyshot/hks_surreal_9_2100_sam.mat')
+# Train and test data split for the descriptor data
+# shot_train -> concatenate all the subdivided SHOT descriptor files designated for training dataset (like shot_0 mentioned above)
+# hks_train -> concatenate all the subdivided HKS descriptor files designated for training dataset (like hks_0 mentioned above)
+# wks_train -> concatenate all the subdivided WKS descriptor files designated for training dataset (like wks_0 mentioned above)
 
-wks_0 = loadmat('./pyshot/wks_surreal_0_2100_sam.mat')
-wks_1 = loadmat('./pyshot/wks_surreal_1_2100_sam.mat')
-wks_2 = loadmat('./pyshot/wks_surreal_2_2100_sam.mat')
-wks_3 = loadmat('./pyshot/wks_surreal_3_2100_sam.mat')
-wks_4 = loadmat('./pyshot/wks_surreal_4_2100_sam.mat')
-wks_5 = loadmat('./pyshot/wks_surreal_5_2100_sam.mat')
-wks_6 = loadmat('./pyshot/wks_surreal_6_2100_sam.mat')
-wks_7 = loadmat('./pyshot/wks_surreal_7_2100_sam.mat')
-wks_8 = loadmat('./pyshot/wks_surreal_8_2100_sam.mat')
-wks_9 = loadmat('./pyshot/wks_surreal_9_2100_sam.mat')
+# shot_test -> concatenate all the subdivided SHOT descriptor files designated for test dataset (like shot_0 mentioned above)
+# hks_test -> concatenate all the subdivided SHOT descriptor files designated for test dataset (like hks_0 mentioned above)
+# wks_test -> concatenate all the subdivided SHOT descriptor files designated for test dataset (like wks_0 mentioned above)
 
-# Concatenate all the subsets of the overall dataset
-shot_train = np.concatenate((shot_0['shot'][:-2,:,:], shot_1['shot'][:-2,:,:], shot_2['shot'][:-2,:,:], shot_3['shot'][:-2,:,:], shot_4['shot'][:-2,:,:], shot_5['shot'][:-2,:,:], shot_6['shot'][:-2,:,:], shot_7['shot'][:-2,:,:], shot_8['shot'][:-2,:,:], shot_9['shot'][:-2,:,:]), axis=0)
-#shot_test = np.concatenate((shot_1['shot'][-num_test:,:,:], shot_2['shot'][-num_test:,:,:], shot_3['shot'][-num_test:,:,:], shot_4['shot'][-num_test:,:,:], shot_5['shot'][-num_test:,:,:], shot_6['shot'][-num_test:,:,:]), axis=0)
-#hks_train = np.concatenate((hks_0['hks'][:-2,:,:], hks_1['hks'][:-2,:,:], hks_2['hks'][:-2,:,:], hks_3['hks'][:-2,:,:], hks_4['hks'][:-2,:,:], hks_5['hks'][:-2,:,:], hks_6['hks'][:-2,:,:], hks_7['hks'][:-2,:,:], hks_8['hks'][:-2,:,:], hks_9['hks'][:-2,:,:]), axis=0)
-#hks_test = np.concatenate((hks_1['hks'][-num_test:,:,:], hks_2['hks'][-num_test:,:,:], hks_3['hks'][-num_test:,:,:], hks_4['hks'][-num_test:,:,:], hks_5['hks'][-num_test:,:,:], hks_6['hks'][-num_test:,:,:]), axis=0)
-wks_train = np.concatenate((wks_0['wks'][:-2,:,:], wks_1['wks'][:-2,:,:], wks_2['wks'][:-2,:,:], wks_3['wks'][:-2,:,:], wks_4['wks'][:-2,:,:], wks_5['wks'][:-2,:,:], wks_6['wks'][:-2,:,:], wks_7['wks'][:-2,:,:], wks_8['wks'][:-2,:,:], wks_9['wks'][:-2,:,:]), axis=0)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-shot_test = np.concatenate((shot_0['shot'][-2:,:,:], shot_1['shot'][-2:,:,:], shot_2['shot'][-2:,:,:], shot_3['shot'][-2:,:,:], shot_4['shot'][-2:,:,:], shot_5['shot'][-2:,:,:], shot_6['shot'][-2:,:,:], shot_7['shot'][-2:,:,:], shot_8['shot'][-2:,:,:], shot_9['shot'][-2:,:,:]), axis=0)
-#hks_test = np.concatenate((hks_0['hks'][-2:,:,:], hks_1['hks'][-2:,:,:], hks_2['hks'][-2:,:,:], hks_3['hks'][-2:,:,:], hks_4['hks'][-2:,:,:], hks_5['hks'][-2:,:,:], hks_6['hks'][-2:,:,:], hks_7['hks'][-2:,:,:], hks_8['hks'][-2:,:,:], hks_9['hks'][-2:,:,:]), axis=0) 
-wks_test = np.concatenate((wks_0['wks'][-2:,:,:], wks_1['wks'][-2:,:,:], wks_2['wks'][-2:,:,:], wks_3['wks'][-2:,:,:], wks_4['wks'][-2:,:,:], wks_5['wks'][-2:,:,:], wks_6['wks'][-2:,:,:], wks_7['wks'][-2:,:,:], wks_8['wks'][-2:,:,:], wks_9['wks'][-2:,:,:]), axis=0)
+desc_train = np.concatenate((shot_train,  wks_train), axis=2) # Take SHOT+WKS descriptors for our calculations
+desc_test =  np.concatenate((shot_test,  wks_test), axis=2) # Take SHOT+WKS descriptors for our calculations
 
-desc_train = np.concatenate((shot_train,  wks_train), axis=2)
-desc_test =  np.concatenate((shot_test,  wks_test), axis=2)
-
-#Custom dataloader instance
+# Custom dataloader instance
 TRAIN_DATASET = DataLoader(root=DATA_PATH, npoint=1000, split='train', uniform=True, normal_channel=False, augm = True, rand = False)
 TEST_DATASET = DataLoader(root=DATA_PATH, npoint=1000, split='test', uniform=True, normal_channel=False, augm = True, rand = False)
 
@@ -100,8 +72,6 @@ dataset_test = torch.utils.data.DataLoader(TEST_DATASET, batch_size=b_size, shuf
 
 # BasisNetwork with 20 basis
 basisNet = PointNetBasis(k=20, feature_transform=False)
-#checkpoint = torch.load(outf + '/basis_model_unsup_hk_0.01_epoch_60.pth')
-#basisNet.load_state_dict(checkpoint)
 
 # Optimizer
 optimizer = optim.Adam(basisNet.parameters(), lr=0.001, betas=(0.9, 0.999))
@@ -176,14 +146,8 @@ for epoch in range(800):
         Q, C = desc_loss(basis_A, basis_B, desc_A, desc_B, area_B)
   
         eucl_loss_1 = criterion(torch.bmm(Q.transpose(2,1), torch.bmm(dist_x, Q)) , dist_y)
-        #eucl_loss_3 = 0.1*criterion(torch.bmm(Q.transpose(2,1), Q), iden_2)
         eucl_loss_4 = 0.1*criterion(torch.bmm(C.transpose(2,1), C), iden_1)
         eucl_loss_5 = 0.1*criterion(torch.bmm(pred.transpose(2,1), torch.bmm(area_tensor, pred)), iden_1)
-        #eucl_loss_6 = 0.1*criterion(torch.bmm(C_2.transpose(2,1), C_2), iden_1)
-        #eucl_loss_7 = 0.1*criterion(torch.bmm(C_1, C_2), iden_1)
-        #eucl_loss_8 = 0.1*criterion(torch.bmm(C_2, C_1), iden_1)
-        #eucl_loss_9 = 0.01*feature_transform_reguliarzer(trans_feat)
-        #eucl_loss_10 = 0.01*feature_transform_reguliarzer(trans)
         eucl_list = [eucl_loss_1.item(), eucl_loss_4.item(), eucl_loss_5.item()]
         eucl_loss = eucl_loss_1 + eucl_loss_4 + eucl_loss_5
 
@@ -223,15 +187,8 @@ for epoch in range(800):
             
             Q, C = desc_loss(basis_A, basis_B, desc_A, desc_B, area_B)
             eucl_loss_1 = criterion(torch.bmm(Q.transpose(2,1), torch.bmm(dist_x, Q)) , dist_y)
-            #eucl_loss_3 = criterion(torch.bmm(Q.transpose(2,1), Q), iden_2)
             eucl_loss_4 = 0.1*criterion(torch.bmm(C.transpose(2,1),C), iden_1)
             eucl_loss_5 = 0.1*criterion(torch.bmm(pred.transpose(2,1), torch.bmm(area_tensor, pred)), iden_1)
-            #eucl_loss_6 = 0.1*criterion(torch.bmm(C_2.transpose(2,1), C_2), iden_1)
-            #eucl_loss_7 = 0.1*criterion(torch.bmm(C_1, C_2), iden_1)
-            #eucl_loss_8 = 0.1*criterion(torch.bmm(C_2, C_1), iden_1)
-            #eucl_loss_9 = 0.01*feature_transform_reguliarzer(trans_feat)
-            #eucl_loss_10 = 0.01*feature_transform_reguliarzer(trans)
-
             eucl_val = [eucl_loss_1.item(), eucl_loss_4.item(), eucl_loss_5.item()]
             eucl_loss = eucl_loss_1  + eucl_loss_4 + eucl_loss_5
             eval_loss +=  eucl_loss.item()
