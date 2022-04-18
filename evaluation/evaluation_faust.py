@@ -1,9 +1,4 @@
 import sys
-#sys.path.append("./Pointnet_Pointnet2_pytorch/models")
-
-#from pointnet2_sem_seg_msg import get_model
-#from pointnet_utils import feature_transform_reguliarzer
-
 from model import PointNetBasis
 from model import PointNetDesc as PointNetDesc
 import torch
@@ -18,15 +13,13 @@ import igl
 from dataload_light_rand import pc_normalize, data_augmentation
 
 device = torch.device("cpu")
-DATA_PATH = '/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/'
+DATA_PATH = './data/'
 
 print(device)
 
 # Loading Models
 basis_model = PointNetBasis(k=20, feature_transform=False)
-#basis_model = get_model(20)
 desc_model = PointNetDesc(k=40, feature_transform=False)
-#desc_model = get_model(40)
 
 epoch = input('Which Epoch?')
 epoch_basis = [63]
@@ -40,6 +33,7 @@ match =  loadmat('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/match_faust_210
 _,f = igl.read_triangle_mesh('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/tr_reg_031_simplified_1000.ply')
 #_,f = igl.read_triangle_mesh('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/tr_reg_031_simp_2100.ply')
 
+# For non-isometric case
 #src_tar = loadmat('/home/raml_sharik/Diff-FMAPs-PyTorch/src_tar.mat')
 #src_1 = src_tar['st'][0,:] - 1
 #tar_1 = src_tar['st'][1,:] - 1
@@ -55,21 +49,11 @@ order = np.argsort(v['indices'])
 geo_dist = geo_dist[order[0,:],:,:]
 v_clean = v_clean[order[0,:],:,:]
 
-#match_not = []
-
-#for i in range(2100):
-#    if i not in match:
-#      match_not.append(i)
-
-#sam = random.sample(match_not, k=200)
-#sam = np.array(sam).reshape(-1,)
-
-#ind = np.concatenate((match, sam), axis=0)
-
 v_clean = v_clean[:,match,:]
 geo_dist = geo_dist[:,match,:]
 geo_dist = geo_dist[:,:,match]
 
+# For testing for Isometric cases
 src = np.zeros((900,), dtype = np.int64)
 tar = np.zeros((900,), dtype = np.int64)
 
@@ -90,16 +74,8 @@ mean_error_start = np.inf
 
 for idx_1,i in enumerate(epoch_basis):
     for idx_2,j in enumerate(epoch_desc):
-      #epoch = input('Which Epoch?')
       checkpoint = torch.load('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/models/trained/basis_model_best_mod_select_epoch_{}.pth'.format(i))
-      #checkpoint = torch.load('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/models/trained/basis_model_unsup_hk_0.01_epoch_{}.pth'.format(i))
-      #checkpoint = torch.load('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/models/trained/basis_model_sup_high_sense_epoch_{}.pth'.format(i))
       basis_model.load_state_dict(checkpoint)
-      #epoch = input('Which Epoch desc?')
-      #checkpoint = torch.load('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/models/trained/desc_model_tnet_epoch_{}.pth'.format(j))
-      #checkpoint = torch.load('/home/raml_sharik/Diff-FMAPs-PyTorch/code/models/trained/desc_model_best_epoch_{}.pth'.format(j))
-      #checkpoint = torch.load('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/models/trained/desc_model_best_C_0.01_epoch_{}.pth'.format(j))
-      #checkpoint = torch.load('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/models/trained/desc_model_best_pnpp_epoch_{}.pth'.format(j))
       checkpoint = torch.load('/home/raml_sharik/Diff-FMAPs-PyTorch-main/code/models/trained/desc_model_best_hk_0.01_epoch_{}.pth'.format(j))
       desc_model.load_state_dict(checkpoint)
 
@@ -109,8 +85,7 @@ for idx_1,i in enumerate(epoch_basis):
 # Computing Basis and Descriptors
       pred_basis = basis_model(torch.transpose(torch.from_numpy(v_clean.astype(np.float32)),1,2))
       pred_desc = desc_model(torch.transpose(torch.from_numpy(v_clean.astype(np.float32)),1,2))
-      #pred_desc = desc_model(torch.transpose(pred_basis[0],1,2))
-      #print(pred_basis[1]@pred_basis[1].transpose(2,1))
+      
 # Save Output
       dd_1 = pred_basis[0].detach().numpy()
       dd_2 = pred_desc[0].detach().numpy()
