@@ -1,14 +1,12 @@
+#Importing all the necessary libraries and functions 
 from __future__ import print_function
-import sys
-import argparse
-import os
 import random
 import torch
 import torch.nn as nn
 import torch.nn.parallel
 import torch.optim as optim
 import torch.utils.data
-from model import PointNetBasis as PointNetBasis
+from model import PointNetBasis as PointNetBasis                
 from model import PointNetDesc as PointNetDesc
 import torch.nn.functional as F
 from tqdm import tqdm
@@ -18,11 +16,16 @@ import hdf5storage
 from scipy.io import loadmat
 import igl
 
+# Defining the GPU resource
 device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
+print(device)
+
+# Defining the randomness seed
 manualSeed = 1  # fix seed
 random.seed(manualSeed)
 torch.manual_seed(manualSeed)
 
+# Batch Size
 b_size = 10
 
 # Out Dir
@@ -32,42 +35,56 @@ try:
 except OSError:
     pass
 
+# Pattern for comparison of shapes
 a = np.arange(b_size)
 b = list(np.arange(1,b_size))
 b.append(0)
 
+# Path where the dataset has been stored
 DATA_PATH = '/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/'
 
+# Declaring instances of the custom datasets
 TRAIN_DATASET = DataLoader(root=DATA_PATH, npoint=1000, split='train', uniform=True, normal_channel=False, augm = True)
 TEST_DATASET = DataLoader(root=DATA_PATH, npoint=1000, split='test', uniform=True, normal_channel=False, augm = True)
 
+# Using Torch DataLoader to define the batch_size and the shuffling parameters
 dataset = torch.utils.data.DataLoader(TRAIN_DATASET, batch_size=b_size, shuffle=True, num_workers=0)
 dataset_test = torch.utils.data.DataLoader(TEST_DATASET, batch_size=b_size, shuffle=True, num_workers=0)
 
+# Using instance of a custom made deep learning model
 basis = PointNetBasis(k=20, feature_transform=False)
+
+# Loading predefined weights into the above model
 checkpoint = torch.load(outf + '/basis_model_best_mod_select_epoch_63.pth')
 basis.load_state_dict(checkpoint)
+
+# network sent to the GPU resource
 basis.to(device)
 
+# Using instance of a custom made deep learning model
 classifier = PointNetDesc(k=40, feature_transform=False)
 
+# Defining the optimiser and the learning rate scheduler
 optimizer = optim.Adam([{'params': classifier.parameters()}], lr=0.001, betas=(0.9, 0.999))#
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.8)
 
+#  network sent to the GPU resource
 classifier.to(device)
 
 best_eval_loss = np.inf;
 
+# Instanstiating the Loss function
 criterion = nn.MSELoss(reduction='mean')
 
 train_losses = [];
 eval_losses = [];
 
+# Defining an identity matrix
 iden_1 =  np.identity(20).reshape(1, 20, 20)
 iden_1 = torch.Tensor(np.repeat(iden_1, b_size, axis=0))
 iden_1 = iden_1.to(device)
 
-# Descriptors loss
+# Descriptors Loss Function
 def desc_loss(phi_A, phi_B, G_A, G_B, area):
     p_inv_phi_A = torch.pinverse(phi_A)
     p_inv_phi_B = torch.pinverse(phi_B)
@@ -75,34 +92,39 @@ def desc_loss(phi_A, phi_B, G_A, G_B, area):
     c_G_A = torch.matmul(p_inv_phi_A, G_A)
     c_G_B = torch.matmul(p_inv_phi_B, G_B)
 
-    #c_G_At = torch.transpose(c_G_A,2,1)
-    #c_G_Bt = torch.transpose(c_G_B,2,1)
-   
     C = torch.matmul(c_G_A, torch.pinverse(c_G_B))
-    #C_2 = torch.matmul(c_G_B, torch.pinverse(c_G_A))                                               
-    #C = torch.matmul(c_G_A,torch.transpose(torch.pinverse(c_G_Bt),2,1))       
     P = torch.matmul(phi_A, torch.matmul(C, torch.matmul(torch.transpose(phi_B, 2, 1), area)))  
     Q = F.normalize(P, 2, 1) ** 2
     
     return Q, C
 
 # Training
-for epoch in range(200):
-    scheduler.step()
+for epoch in range(800):
+
+    # lr scheduler step
+    scheduler.step()                                                 
+
     train_loss = 0
     eval_loss = 0
-    eucl_loss_list = [0, 0, 0, 0]
-    eucl_loss_val = [0, 0, 0, 0]
+    eucl_loss_list = [0, 0]
+    eucl_loss_val = [0, 0]
 
+    # Batch-wise data
     for data in tqdm(dataset, 0):
+        # 3D point data
         points = data[0]
+     
+        # Geodesic distance data                                
         dist = data[1]
+
+        # Voronoi Area Data
         area_tensor = data[4]
         area_tensor = area_tensor.to(device)
 
         points = points.transpose(2, 1)
         points = points.to(device)
         dist = dist.to(device)
+
         optimizer.zero_grad()
         classifier = classifier.train()
 
@@ -116,34 +138,40 @@ for epoch in range(200):
         desc_A = desc[a,:,:]; desc_B = desc[b,:,:];
         area_A = area_tensor[a,:,:]; area_B = area_tensor[b,:,:]
 
+        # Soft Correspondence Map Calculation 
         Q, C = desc_loss(basis_A, basis_B, desc_A, desc_B, area_B)
 
+        # Final Loss Calculation
         eucl_loss_1 = criterion(torch.bmm(Q.transpose(2,1), torch.bmm(dist_x, Q)) , dist_y)
-        #eucl_loss_2 = criterion(torch.bmm(Q.transpose(2,1), Q) , iden_2)
         eucl_loss_4 = 0.1*criterion(torch.bmm(C.transpose(2,1), C), iden_1)
-        #eucl_loss_5 = 0.1*criterion(torch.bmm(C_2.transpose(2,1), C_2), iden_1)
-        #eucl_loss_6 = 0.1*criterion(torch.bmm(C_1, C_2), iden_1)
-        #eucl_loss_7 = 0.1*criterion(torch.bmm(C_2, C_1), iden_1)
-        #eucl_loss_8 = 0.01*feature_transform_reguliarzer(trans_feat)
-        #eucl_loss_9 = 0.01*feature_transform_reguliarzer(trans)
 
         eucl_list = [eucl_loss_1.item(), eucl_loss_4.item()]
         eucl_loss = eucl_loss_1 + eucl_loss_4
   
         eucl_loss.backward()
         optimizer.step()
+
         train_loss += eucl_loss.item()
         for i in range(len(eucl_list)):
             eucl_loss_list[i] += eucl_list[i]
      
     print('Training Loss:', eucl_loss_list)
 
+    # Validation
+    # Batch-wise data
     for data in tqdm(dataset_test, 0):
+
+        # 3D point data
         points = data[0]
+
+        # Geodesic distance data
         dist = data[1]
         dist = dist.to(device)
+
         points = points.transpose(2, 1)
         points = points.to(device)
+
+        # Voronoi Area Data
         area_tensor = data[4]
         area_tensor = area_tensor.to(device)
 
@@ -158,16 +186,13 @@ for epoch in range(200):
             dist_x = dist[a, :, :]; dist_y = dist[b,:,:]
             area_A = area_tensor[a,:,:]; area_B = area_tensor[b,:,:]
 
+            # Soft Correspondence Map Calculation
             Q, C = desc_loss(basis_A, basis_B, desc_A, desc_B, area_B)
      
+            # Final Loss Calculation
             eucl_loss_1 = criterion(torch.bmm(Q.transpose(2,1), torch.bmm(dist_x, Q)) , dist_y)
-            #eucl_loss_2 = criterion(torch.bmm(Q.transpose(2,1), Q) , iden_2)
             eucl_loss_4 = 0.1*criterion(torch.bmm(C.transpose(2,1), C), iden_1)
-            #eucl_loss_5 = 0.1*criterion(torch.bmm(C_2.transpose(2,1), C_2), iden_1)
-            #eucl_loss_6 = 0.1*criterion(torch.bmm(C_1, C_2), iden_1)
-            #eucl_loss_7 = 0.1*criterion(torch.bmm(C_2, C_1), iden_1)
-            #eucl_loss_8 = 0.01*feature_transform_reguliarzer(trans_feat)
-            #eucl_loss_9 = 0.01*feature_transform_reguliarzer(trans)
+
             eucl_val = [eucl_loss_1.item(), eucl_loss_4.item()]
             eucl_loss = eucl_loss_1 + eucl_loss_4
             eval_loss += eucl_loss.item()
@@ -178,14 +203,19 @@ for epoch in range(200):
     print('EPOCH ' + str(epoch) + ' - eva_loss: ' + str(eval_loss))
     print('Validation Loss:', eucl_loss_val)
 
+    # Storing better performing weights
     if eval_loss <  best_eval_loss:
         print('save model')
         best_eval_loss = eval_loss
-        torch.save(classifier.state_dict(), '%s/desc_model_unsup_hk_0.01_0.007_0.005_epoch_{}.pth'.format(epoch) % (outf))
-        #torch.save(basis.state_dict(), '%s/basis_model_best_20.pth' % (outf))
+        torch.save(classifier.state_dict(), '%s/desc_model_unsup_hk_0.01_epoch_{}.pth'.format(epoch) % (outf))
 
     train_losses.append(train_loss)
     eval_losses.append(eval_loss)
 
-   #np.save(outf+'/train_losses_desc_hk_0.01_0.007_0.005.npy',train_losses)
-   #np.save(outf+'/eval_losses_desc_hk_0.01_0.007_0.005.npy',eval_losses)
+    #Storing Training/Validation Losses
+    np.save(outf+'/train_losses_desc.npy',train_losses)
+    np.save(outf+'/eval_losses_desc.npy',eval_losses)
+
+
+
+
