@@ -19,14 +19,14 @@ The dataset used here involves 1000 low density meshes (2100/1000 vertices) take
 In various locations, you can modify the code accordding to the dataset generated. The modifications are as follows:
 
 1) **train_basis.py** : 
-- Replace all the supposed mat file locations given in the form './pyshot/shot_faust_0_2100_sam.mat' by files containing the SHOT descriptors for your dataset.
-- Replace all the supposed mat file locations given in the form './pyshot/hks_surreal_0_2100_sam.mat' by files containing the HKS descriptors for your dataset.
-- Replace all the supposed mat file locations given in the form './pyshot/wks_surreal_0_2100_sam.mat' by files containing the WKS descriptors for your dataset.
+- Replace all the supposed mat file locations given in the form *'./pyshot/shot_faust_0_2100_sam.mat'* by files containing the SHOT descriptors for your dataset.
+- Replace all the supposed mat file locations given in the form *'./pyshot/hks_surreal_0_2100_sam.mat'* by files containing the HKS descriptors for your dataset.
+- Replace all the supposed mat file locations given in the form *'./pyshot/wks_surreal_0_2100_sam.mat'* by files containing the WKS descriptors for your dataset.
 
 2) **dataloader_light_rand.py** :
-- Replace all the supposed mat file locations given in the form './data/unsup_data_t_0.005_hk_0_same.mat' by files containing the indices and heat kernels (at desired t values) for your dataset.
-- Replace "/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/match_6890_2100 (1).mat" (6890 -> 2100) & "/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/match_2100_1000 (1).mat" (2100->1000) by files containing correspondences between high density and low density meshes in order to work with the latter
-- Replace "/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/3973_simp_1000.obj" by the location of the simplified mesh
+- Replace all the supposed mat file locations given in the form *'./data/unsup_data_t_0.005_hk_0_same.mat'* by files containing the indices and heat kernels (at desired t values) for your dataset.
+- Replace *"/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/match_6890_2100 (1).mat"* (6890 -> 2100) & *"/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/match_2100_1000 (1).mat"* (2100->1000) by files containing correspondences between high density and low density meshes in order to work with the latter
+- Replace *"/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/3973_simp_1000.obj"* by the location of the simplified mesh
 
 ### Model Architecture
 The 'model.py' file contains the model architecture for both basis and descriptor models
