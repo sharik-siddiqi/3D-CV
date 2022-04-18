@@ -1,7 +1,5 @@
 from __future__ import print_function
 import sys
-sys.path.append("./Pointnet_Pointnet2_pytorch/models")
-
 import argparse
 import os
 import random
@@ -10,9 +8,6 @@ import torch.nn as nn
 import torch.nn.parallel
 import torch.optim as optim
 import torch.utils.data
-#from pointnet_sem_seg_desc import get_model_desc
-#from pointnet_sem_seg import get_model
-#from pointnet_utils import feature_transform_reguliarzer
 from model import PointNetBasis as PointNetBasis
 from model import PointNetDesc as PointNetDesc
 import torch.nn.functional as F
@@ -24,12 +19,9 @@ from scipy.io import loadmat
 import igl
 
 device = torch.device("cuda:2" if torch.cuda.is_available() else "cpu")
-print(device)
 manualSeed = 1  # fix seed
 random.seed(manualSeed)
 torch.manual_seed(manualSeed)
-
-#_, f = igl.read_triangle_mesh("/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/3793_simp_1000.obj")
 
 b_size = 10
 
@@ -53,17 +45,13 @@ dataset = torch.utils.data.DataLoader(TRAIN_DATASET, batch_size=b_size, shuffle=
 dataset_test = torch.utils.data.DataLoader(TEST_DATASET, batch_size=b_size, shuffle=True, num_workers=0)
 
 basis = PointNetBasis(k=20, feature_transform=False)
-#basis = get_model(20)
-checkpoint = torch.load(outf + '/basis_model_best_mod_epoch_7.pth')
+checkpoint = torch.load(outf + '/basis_model_best_mod_select_epoch_63.pth')
 basis.load_state_dict(checkpoint)
 basis.to(device)
 
 classifier = PointNetDesc(k=40, feature_transform=False)
-#classifier = get_model_desc(40)
-checkpoint = torch.load(outf + '/desc_model_unsup_hk_0.01_0.007_epoch_33.pth')
-classifier.load_state_dict(checkpoint)
 
-optimizer = optim.Adam([{'params': classifier.parameters()}], lr=0.0001, betas=(0.9, 0.999))#
+optimizer = optim.Adam([{'params': classifier.parameters()}], lr=0.001, betas=(0.9, 0.999))#
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.8)
 
 classifier.to(device)
@@ -199,5 +187,5 @@ for epoch in range(200):
     train_losses.append(train_loss)
     eval_losses.append(eval_loss)
 
-    np.save(outf+'/train_losses_desc_hk_0.01_0.007_0.005.npy',train_losses)
-    np.save(outf+'/eval_losses_desc_hk_0.01_0.007_0.005.npy',eval_losses)
+   #np.save(outf+'/train_losses_desc_hk_0.01_0.007_0.005.npy',train_losses)
+   #np.save(outf+'/eval_losses_desc_hk_0.01_0.007_0.005.npy',eval_losses)
