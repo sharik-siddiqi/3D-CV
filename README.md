@@ -29,7 +29,7 @@ In various locations, you can modify the code accordding to the dataset generate
 - Replace "/home/raml_sharik/Diff-FMAPs-PyTorch-main/data/3973_simp_1000.obj" by the location of the simplified mesh
 
 ### Model Architecture
-THe 'model.py' file contains the model architecture for both basis and descriptor models
+The 'model.py' file contains the model architecture for both basis and descriptor models
 
 ### Pre-Trained weights and biases
 The trained model weights and the biases for the basis and decriptor model have been provided in the repository 
