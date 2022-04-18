@@ -12,7 +12,7 @@ pip install -r requirements.txt
 Installing PyTorch may require an ad hoc procedure, depending on your computer settings.
 
 ### Data 
-Due to the enormous size of the data, anyone can contact with for the same via the mentioned contact email
+Due to the enormous size of the data, anyone can contact me for obtaining the same via the mentioned contact email-id
 
 The dataset used here involves 1000 low density meshes (2100/1000 vertices) taken from the **SURREAL** dataset. The dataset has been generated using the **SMPL** model with various shape and pose parameters. 
 
